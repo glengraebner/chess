@@ -1,0 +1,230 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Oct 21, 2017, 10:37:15 PM
+    Author     : gleng
+*/
+
+.main
+{
+    width: 1400px;
+}
+
+.game_area
+{
+    width: 565px;
+}
+
+.analysis_area
+{
+    float: left;
+    width: 605px;
+    height: 550px;
+}
+
+.central_area
+{
+    width: 100%;
+}
+
+.game_area, .top_border, .bottom_border, .left_border, .right_border, .game_board
+{
+    float: left;
+}
+
+.left_analysis
+{
+    float: left;
+    width: 200px;
+    height: 500px;
+}
+
+.right_analysis
+{
+    float: left;
+    margin-left: 5px;
+    width: 400px;
+    height: 500px;
+}
+
+#top_border, #bottom_border
+{
+    padding: 2px;
+    border: solid #ddddcc 1px;
+    font-family: calibri;
+    font-size: 8pt;
+    width: 555px;
+    height: 45px;
+    margin-left: 1px;
+    padding-top: 2px;
+    background: url('../graphics/wood.jpg');
+    background-repeat: repeat;
+    background-size: contain;
+}
+
+#left_border, #right_border
+{
+    padding: 2px;
+    border: solid #ddddcc 1px;
+    font-family: calibri;
+    font-size: 8pt;
+    width: 45px;
+    height: 441px;
+    margin-left: 1px;
+    padding-top: 3px;
+    background: url('../graphics/wood.jpg');
+    background-repeat: repeat;
+    background-size: contain;
+}
+
+.button1
+{
+    width: 70px;
+    height: 22px;
+    font-family: Calibri;
+    font-size: 8pt;
+}
+
+.light_square
+{
+    background-color: #eeeedd;
+    border: solid 1px gray;
+    cursor: pointer;
+}
+
+.dark_square
+{
+    background-color: steelblue;
+    border: solid 1px gray;
+    cursor: pointer;
+}
+
+.comm_window
+{
+    border: solid 1px black;
+    background-color: gray;
+    font-family: calibri;
+    font-size: small;
+    width: 100%;
+    vertical-align: top;
+}
+
+.piece
+{
+    width: 40px;
+    height: 40px;
+}
+
+.dark_square,.light_square
+{
+    width: 45px;
+    height: 45px;
+}
+
+.left_column, .middle_column
+{
+    float: left;
+}
+
+.middle_column
+{
+    padding-top: 2px;
+}
+
+.numbers
+{
+    border: gray 1px solid;
+    text-align: center;
+    width: 18px;
+    background-color: #bbbbdd;
+    font-family: Calibri;
+    font-size: small;
+}
+
+.letters
+{
+    border: gray 1px solid;
+    text-align: center;
+    background-color: #bbbbdd;
+    font-family: Calibri;
+    font-size: 8pt;
+}
+
+.right_column, .middle_column
+{
+    font-family: Calibri;
+    font-size: 8pt;
+}
+
+.div_header
+{
+    border: outset thin gray;
+    width: 100%;
+    background-color: #bbbbdd;
+    color: black;
+    font-family: Calibri;
+    font-size: 8pt;
+    padding-left: 2px;
+}
+
+.div_body, .div_body_processing, .div_body_move_analysis
+{
+    border: solid 1px gray;
+    color: navy;
+    width: 100%;    
+    background-color: #ffffff;
+    vertical-align: top;
+    font-family: Calibri;
+    font-size: 8pt;
+    overflow-y: scroll;
+}
+
+.div_body
+{
+    height: 94px;
+}
+
+.div_body_processing
+{
+    height: 533px;
+}
+
+.div_body_move_analysis
+{
+    height: 200px;
+}
+
+.newgamespan
+{
+    float: right;
+    color: blue;
+    margin-right: 3px;
+    cursor: pointer;
+    font-size: 7pt;
+    text-decoration: underline;
+}
+
+.gamedata_cell_label,.gamedata_cell_data
+{
+    border: none;
+    background-color: #ffffff;
+    font-family: Calibri;
+    font-size: 8pt;
+    height: 10px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-right: 4px;
+}
+
+.gamedata_cell_label
+{
+    color: navy;
+}
+.gamedata_cell_data
+{
+    cursor: pointer;
+    color: blue;
+}

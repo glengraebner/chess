@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Chess</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/board.css">
+        <script src="scripts/board.js"></script>
+        <script src="scripts/data.js"></script>
+        <script src="scripts/engine.js"></script>
+        <script src="scripts/utilities.js"></script>
+        <script src="scripts/ajax.js"></script>
+    </head>
+    <body onload="StartUp()">
+        <div class="main">
+            <div class="game_area">
+                <div class="top_border" id="top_border" onclick=""></div>
+                    <div class="central_area">
+                        <div class="left_border" id="left_border"></div>
+                        <div class="game_board">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td class="letters"></td>
+                                <td class="letters">A</td>
+                                <td class="letters">B</td>
+                                <td class="letters">C</td>
+                                <td class="letters">D</td>
+                                <td class="letters">E</td>
+                                <td class="letters">F</td>
+                                <td class="letters">G</td>
+                                <td class="letters">H</td>
+                                <td class="letters"></td>
+                            </tr>                        
+                            <tr>
+                                <td class="numbers">8</td>
+                                <td id="A8" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="B8" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="C8" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="D8" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="E8" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="F8" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="G8" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="H8" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td class="numbers">8</td>
+                            </tr>
+                            <tr>
+                                <td class="numbers">7</td>
+                                <td id="A7" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="B7" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="C7" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="D7" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="E7" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="F7" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="G7" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="H7" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td class="numbers">7</td>
+                            </tr>
+                            <tr>
+                                <td class="numbers">6</td>
+                                <td id="A6" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="B6" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="C6" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="D6" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="E6" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="F6" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="G6" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="H6" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td class="numbers">6</td>
+                            </tr>
+                            <tr>
+                                <td class="numbers">5</td>
+                                <td id="A5" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="B5" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="C5" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="D5" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="E5" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="F5" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="G5" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="H5" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td class="numbers">5</td>
+                            </tr>
+                            <tr>
+                                <td class="numbers">4</td>
+                                <td id="A4" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="B4" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="C4" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="D4" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="E4" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="F4" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="G4" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="H4" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td class="numbers">4</td>
+                            </tr>
+                            <tr>
+                                <td class="numbers">3</td>
+                                <td id="A3" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="B3" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="C3" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="D3" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="E3" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="F3" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="G3" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="H3" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td class="numbers">3</td>
+                            </tr>
+                            <tr>
+                                <td class="numbers">2</td>
+                                <td id="A2" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="B2" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="C2" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="D2" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="E2" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="F2" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="G2" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="H2" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td class="numbers">2</td>
+                            </tr>
+                            <tr>
+                                <td class="numbers">1</td>
+                                <td id="A1" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="B1" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="C1" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="D1" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="E1" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="F1" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="G1" class="dark_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td id="H1" class="light_square" ondragover="allowDrop(event)" ondrop="drop(this.id)"></td>
+                                <td class="numbers">1</td>
+                            </tr>
+                            <tr>
+                                <td class="letters"></td>
+                                <td class="letters">A</td>
+                                <td class="letters">B</td>
+                                <td class="letters">C</td>
+                                <td class="letters">D</td>
+                                <td class="letters">E</td>
+                                <td class="letters">F</td>
+                                <td class="letters">G</td>
+                                <td class="letters">H</td>
+                                <td class="letters"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                        <div class="right_border" id="right_border"></div>
+                    </div>
+                <div class="bottom_border" id="bottom_border" onclick=""></div> 
+            </div>
+            <div class="analysis_area">
+                <div class="left_analysis">
+                    <div class="div_header">
+                        <span>Game History</span><span class="newgamespan" title="New Game" onclick="LoadNewGame()">New Game</span>
+                    </div>
+                    <div class="div_body">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td class="moves_body">
+                                        <div id="moves_block" class="moves_block"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>                        
+                    </div>
+                    <div class="div_header">Game Data</div>
+                    <div class="div_body">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td class="gamedata_cell_label">Player:</td>
+                                    <td id="playercolorcell" class="gamedata_cell_data" onclick="SwitchSides();"></td>
+                                </tr>
+                                <tr>
+                                    <td class="gamedata_cell_label">Computer skill level:</td>
+                                    <td id="randmodecell" class="gamedata_cell_data" title="Toggle Skill Level" onclick="ToggleCompSkillLevel();"></td>
+                                </tr>
+                                <tr>
+                                    <td class="gamedata_cell_label">Last player move:</td>
+                                    <td id="playermovecell" class="gamedata_cell_data" title=""></td>
+                                </tr>
+                                <tr>
+                                    <td class="gamedata_cell_label">Last computer move:</td>
+                                    <td id="compmovecell" class="gamedata_cell_data" title=""></td>
+                                </tr>
+                                <tr>
+                                    <td class="gamedata_cell_label">Score (player/computer):</td>
+                                    <td id="gamescorecell" class="gamedata_cell_data"></td>
+                                </tr>
+                            </tbody>
+                        </table>                        
+                    </div>
+                    <div class="div_header">Captured Pieces</div>
+                    <div class="div_body">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td class="pieces_body">
+                                        <div id="pieces_block" class="pieces_block"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>                        
+                    </div>
+                    <div class="div_header">Deep Thoughts</div>
+                    <div class="div_body_move_analysis">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td class="">
+                                        <div id="" class=""></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table> 
+                </div>
+                </div>
+                <div class="right_analysis">
+                    <div class="div_header">Move Processing</div>
+                    <div class="div_body_processing">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td class="processing_body">
+                                        <div id="processing_block" class="processing_block"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>                        
+                    </div>                
+                </div>
+             </div>
+        </div>
+    </body>
+</html>
