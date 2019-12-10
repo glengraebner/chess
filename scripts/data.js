@@ -19,9 +19,10 @@ var computermove;
 var validcompmoves;
 var playerscore = 0;
 var computerscore = 0;
-var board = new Array(); // pieces on board
-var squares = new Array(); // names of squares
-var moves = new Array();
-var processes = new Array();
-var validmoves = new Array();
-var capturedpieces = new Array();
+var board = []; // pieces on board
+var sandboard = [];
+var squares = []; // names of squares
+var moves = [];
+var processes = [];
+var validmoves = [];
+var capturedpieces = [];

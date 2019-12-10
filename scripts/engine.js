@@ -232,6 +232,8 @@ function PickBestPointsMove2Step(){
     
     LoadProcess('Begin PickBestPointsMove2Step()');
     
+    
+    
     LoadProcess('End PickBestPointsMove2Step()');
 }
 
