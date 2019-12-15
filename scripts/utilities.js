@@ -4,14 +4,19 @@
  * @param {array} tempboard -- The temporary chessboard.
  * @return {string} computermove -- Next computer move.
  */
-function SelectComputerMove(tempboard,cskill) {
+function SelectComputerMove(playercolor,tempboard,cskill) {
     var computermove;
     var step1result = [];
     var step2result = [];
     var tempboard = [];
+    var whichplayersmove = "white";
     
     LoadProcess("Begin SelectComputerMove()");
     outtxt = "";
+    
+    if(playercolor === "white") {
+        whichplayersmove = "black";
+    }
     
     for(var i=1;i<9;i++){
         tempboard[i] = new Array();
@@ -39,15 +44,15 @@ function SelectComputerMove(tempboard,cskill) {
     */
     
     if(cskill === 0) {
-        computermove = PickRandomMove(tempboard);
+        computermove = PickRandomMove(whichplayersmove,tempboard);
     }
     if(cskill === 1) {
         // while(move != "")
-        step1result = PickBestPointsMove1Step(tempboard);
+        step1result = PickBestPointsMove1Step(whichplayersmove,tempboard);
         computermove = step1result[0];
     }
     if(cskill >= 2) {
-        step2result = PickBestPointsMove2Step();
+        step2result = PickBestPointsMove2Step(whichplayersmove,tempboard);
         computermove = step2result[0];
     }    
     LoadProcess("End SelectComputerMove()");
@@ -56,6 +61,7 @@ function SelectComputerMove(tempboard,cskill) {
     return computermove;
 }
 
+// ToDo: Update this to IsMoveValid and take out player1 param
 /**
  * Returns true if player move is valid.
  *
@@ -94,7 +100,7 @@ function IsPlayerMoveValid(pmove,allmoves,tempsquares,tempboard,player1) {
     }
     
     // check that white goes first
-    if(pmoves.length === 0){
+    if(allmoves.length === 0){
         // look up piece on board square [i][j]
         txt = tempboard[bi][bj];
         if(txt!=''){
@@ -158,22 +164,23 @@ function IsPlayerMoveValid(pmove,allmoves,tempsquares,tempboard,player1) {
 /**
  * Returns array of valid computer moves.
  *
+ * @param {string} whichplayersmove -- The temporary chessboard.
  * @param {array} tempboard -- The temporary chessboard.
  * @return {array} validmoves -- Valid computer moves.
  */
-function ProcessValidComputerMoves(tempboard) {
+function GetValidMoves(whichplayersmove,tempboard) {
     var txt1, txt2;
     var posmoves = [];
     var validmoves = [];
     // Loads validmoves array with possible computer moves
      
-    LoadProcess("Begin ProcessValidComputerMoves()");
+    LoadProcess("Begin GetValidMoves()");
     
     // Read board
     for(var i=1;i<9;i++){
         for(var j=1;j<9;j++){
             txt1 = tempboard[i][j];
-            if((player === 'white' && txt1.substring(0,1)==='B') || (player === 'black' && txt1.substring(0,1)==='W')){
+            if((whichplayersmove === 'white' && txt1.substring(0,1)==='W') || (whichplayersmove === 'black' && txt1.substring(0,1)==='B')){
                 posmoves = AnalyzePieceMove(txt1,i,j);  // By piece type, determine valid move(s)
                 for(var k=0;k<posmoves.length;k++){
                     validmoves[validmoves.length] = posmoves[k];  // Add move to validmoves[]
@@ -193,11 +200,11 @@ function ProcessValidComputerMoves(tempboard) {
         }       
     }
     //validcompmoves = txt1;
-    LoadProcess("Valid computer moves (" + validmoves.length + "): " + txt1);
+    LoadProcess("Valid moves for " + whichplayersmove + " (" + validmoves.length + "): " + txt1);
 
     // Display valid moves in Analysis window
     
-    LoadProcess("End ProcessValidComputerMoves()");
+    LoadProcess("End GetValidMoves()");
     
     return validmoves;
 }
@@ -546,7 +553,7 @@ function AnalyzePieceMove(piece,ipos,jpos) {
  * @param {array} tempboard -- The temporary chessboard.
  * @return {string} randmove -- Random move.
  */
-function PickRandomMove(tempboard) {
+function PickRandomMove(whichplayersmove,tempboard) {
     var randmove;
     var randidx;
     var validmoves = [];
@@ -554,7 +561,7 @@ function PickRandomMove(tempboard) {
     LoadProcess("Begin PickRandomMove()");
     
     // load [validmoves] array based on board[][]
-    validmoves = ProcessValidComputerMoves(tempboard);
+    validmoves = GetValidMoves(whichplayersmove,tempboard);
     
     // Pick random selection from validmoves[] array
     randidx = Math.floor((Math.random() * validmoves.length) -1);
@@ -572,10 +579,11 @@ function PickRandomMove(tempboard) {
 /**
  * Returns best move [0] and highest points [1] considering only the next possible computer move.
  *
+ * @param {string} whichplayersmove -- Player being analyzed.
  * @param {array} tempboard -- The temporary chessboard.
  * @return {array} bestmove -- bestmove[0] = move, bestmove[1] = points.
  */
-function PickBestPointsMove1Step(tempboard) {
+function PickBestPointsMove1Step(whichplayersmove,tempboard) {
     var bestmove = [];
     var sequence;
     var idx;
@@ -587,7 +595,7 @@ function PickBestPointsMove1Step(tempboard) {
     maxpoints = 0;
     sequence = -1;
     
-    validmoves = ProcessValidComputerMoves(tempboard);
+    validmoves = GetValidMoves(whichplayersmove,tempboard);
     
     // Values: pawn=1, bishop=knight=3, rook=5, and queen=9
     for(var i=0;i<validmoves.length;i++){
@@ -598,7 +606,7 @@ function PickBestPointsMove1Step(tempboard) {
             if(points >= maxpoints){
                 maxpoints = points;
                 sequence = i;
-            }           
+            }
         }
     }
     
@@ -616,13 +624,41 @@ function PickBestPointsMove1Step(tempboard) {
     return bestmove;
 }
 
-function PickBestPointsMove2Step() {
+// ToDo: Add recursive calls to PickBestPointsMove1Step with tempboard1 (modified with each possible next computer moves)
+/**
+ * Returns best move [0] and highest points [1] considering next computer move and next player move.
+ *
+ * @param {string} player -- Player being analyzed.
+ * @param {array} tempboard -- The temporary chessboard.
+ * @return {array} bestmove -- bestmove[0] = move, bestmove[1] = points.
+ */
+function PickBestPointsMove2Step(whichplayersmove,tempboard) {
+    var bestmove = [];
+    var validmoves, validcountermoves;
+    var maxpoints;
     
     LoadProcess('Begin PickBestPointsMove2Step()');
     
+    // First get all valid computer moves
+    validmoves = GetValidMoves(whichplayersmove,tempboard);
     
+    // Second, iterate over all valid computer moves and get all possible counter moves
+    // Values: pawn=1, bishop=knight=3, rook=5, and queen=9
+    for(var i=0;i<validmoves.length;i++){
+        txt1 = validmoves[i];
+        txt2 = txt1.substring(txt1.length-1,txt1.length);
+        if(txt2 === 'X' || txt2 === 'x'){
+            // ToDo: modify this function to use tempboard (currently broken)
+            points = CalculateCapturePoints(validmoves[i],tempboard);
+            if(points >= maxpoints){
+                maxpoints = points;
+                sequence = i;
+            }
+        }
+    }
     
     LoadProcess('End PickBestPointsMove2Step()');
+    return bestmove;
 }
 
 function CalculateCapturePoints(move) {

@@ -301,7 +301,7 @@ function ProcessMove(){
     playermove = move;
     if(IsPlayerMoveValid(playermove,moves,squares,board,player)){  // pmove,pmoves,tempsquares,tempboard,player1
         RecordPlayerMove();   // adds move to moves[] list and outputs to window         
-        computermove = SelectComputerMove(board,compskilllvl);
+        computermove = SelectComputerMove(player,board,compskilllvl);
         RecordComputerMove();
     }
 }
