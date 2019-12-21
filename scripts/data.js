@@ -1,28 +1,44 @@
+//  game[0] is array of 32 chess pieces with listeners
+/*
+    game[0][0] = ''
+    
+*/
+
+//  game[1] is array of 64 squares on chess board
+/*
+
+*/
+
+//  game[2] is set of game variables
 /* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+    game[2][0] - playermove
+    game[2][1] - computermove
+    game[2][2] - validcompmoves
+    game[2][3] - numcompmoves
+    game[2][4] - computerscore
+    game[2][5] - playerscore
+    game[2][6] - player
+    game[2][7] - compskilllvl       
+*/
 
-// settings
-var datafont = 'blue';
+//  game[3] is game board
+/*
 
-// game variables
-var player = 'white';
-var compskilllvl = 0;  // 0 - random, 1 - beginner, 2 - intermediate, 3 - advanced
-var gamepieces = new Array();
-var selectedpiece;
-var fromquare;
-var tosquare;
-var playermove;
-var computermove;
-var validcompmoves;
-var playerscore = 0;
-var computerscore = 0;
-var board = []; // pieces on board
-var sandboard = [];
-var squares = []; // names of squares
-var moves = [];
-var processes = [];
-var validmoves = [];
-var capturedpieces = [];
+*/
+
+//  game[4] is 
+/*
+    game[4][0] - 
+*/
+
+var game;
+
+// Update 12/20/2019
+function GetGame() {
+    return game;
+}
+
+// Updated 12/20/2019
+function SetGame(gameobj) {
+    game = gameobj;
+}

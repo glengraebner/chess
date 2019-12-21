@@ -8,101 +8,63 @@
 var datafont = 'blue';
 
 // game variables
-var player = 'white';
-var compskilllvl = 0;  // 0 - random, 1 - beginner, 2 - intermediate, 3 - advanced
-var gamepieces = new Array();
+//var player = 'white';
+//var compskilllvl = 0;  // 0 - random, 1 - beginner, 2 - intermediate, 3 - advanced
+//var gameobj[0] = new Array();
 var selectedpiece;
 var fromquare;
 var tosquare;
-var playermove;
+//var playermove;
 //var computermove;
-var validcompmoves;
-var playerscore = 0;
-var computerscore = 0;
+//var validcompmoves;
+//var playerscore = 0;
+//var computerscore = 0;
 var moves = new Array();
-var board = new Array(); // pieces on board
-var squares = new Array(); // names of squares
+//var board = new Array(); // pieces on board
+//var squares = new Array(); // names of squares
 var processes = new Array();
 var capturedpieces = new Array();
 var fromsquare, tosquare;
 
-// event handlers
+function StartUp() {
+    var gameobj = new Object();
+    
+    gameobj[0] = InitializePieces();                // 32 chess pieces with listeners
+    gameobj[1] = InitializeSquares();               // 64 squares on chess board  
+    gameobj[2] = InitializeGameVariables();         // set of game variables
+    gameobj[3] = InitializeGameBoard(gameobj);      // gameboard
+    UpdateBoard(gameobj);                           // load game board
+    UpdateGameDataWindow(gameobj);                  // load game data window
+    
+    SetGame(gameobj);
+}
+
+// Event handler
 function drag(id) {
     selectedpiece = id;
     fromsquare = document.getElementById(id).parentNode.id;
 }
 
+// Event handler
 function allowDrop(ev) {
     ev.preventDefault();
 }
 
-function drop(id){
+// Event handler
+function drop(id) {
     if(id)
     {
         tosquare = id;
-        ProcessMove();
+        ProcessPlayerMove(fromsquare,tosquare,squares,player,board,compskilllvl);
     }
 }
 
-function ResetGameData(){
-    playermove = '---';
-    computermove = '---';
-    validcompmoves = '---';
-    numcompmoves = 0;  
-    computerscore = 0;
-    playerscore = 0;
-}
-
-function ClearMoves(){
-    moves.length = 0;
-}
-
-function ClearProcesses(){
-    processes.length = 0;
-}
-
-function ClearCapturedPieces(){
-    capturedpieces.length = 0;
-}
-
-function ClearWindows(){
-    document.getElementById('moves_block').innerHTML = '';
-    document.getElementById('processing_block').innerHTML = '';
-    document.getElementById('pieces_block').innerHTML = '';
-}
-
-function AddCapturedPiece(piece){
+function AddCapturedPiece(piece) {
     document.getElementById('pieces_block').innerHTML = document.getElementById('pieces_block').innerHTML + piece + '</br>';
 }
 
-function UpdateAnalysisWindow(){
-    
-    if(player === 'white'){
-        document.getElementById('playercolorcell').innerHTML = 'White';    
-    }
-    else{
-        document.getElementById('playercolorcell').innerHTML = 'Black';    
-    }
-    if(compskilllvl === 0){
-        document.getElementById('randmodecell').innerHTML = 'Beginner';        
-    }
-    else if (compskilllvl === 1){
-        document.getElementById('randmodecell').innerHTML = 'Novice';        
-    }
-    else if (compskilllvl === 2){
-        document.getElementById('randmodecell').innerHTML = 'Intermediate';        
-    }
-    else if (compskilllvl === 3){
-        document.getElementById('randmodecell').innerHTML = 'Advanced';        
-    }
-    document.getElementById('playermovecell').innerHTML = playermove;
-    document.getElementById('compmovecell').innerHTML = computermove;
-    document.getElementById('gamescorecell').innerHTML = playerscore + '/' + computerscore;
-    
-}
-
 // ToDo: Flip pieces for active game
-function SwitchSides(){
+function SwitchSides() {
     if(player === 'white') {
         player = 'black';
         LoadProcess('player now black');
@@ -114,7 +76,7 @@ function SwitchSides(){
     UpdateAnalysisWindow();
 }
 
-function ToggleCompSkillLevel(){
+function ToggleCompSkillLevel() {
 
     if(compskilllvl === 0){
         compskilllvl = 1;
@@ -135,7 +97,7 @@ function ToggleCompSkillLevel(){
     UpdateAnalysisWindow();
 }
 
-function LoadProcess(process){
+function LoadProcess(process) {
     var d = new Date();
     var header = "<table>"
     var footer = "</table>"
@@ -151,7 +113,7 @@ function LoadProcess(process){
     document.getElementById("processing_block").innerHTML = header + txt + footer;
 }
 
-function RecordComputerMove(){
+function RecordComputerMove() {
     var m,n,p,q;
     var move = computermove;
     
@@ -193,7 +155,7 @@ function RecordComputerMove(){
     UpdateAnalysisWindow();
 }
 
-function RecordPlayerMove(){
+function RecordPlayerMove() {
 
     // If piece captured, record capture
     //alert(computermove.substring(computermove.length-1,computermove.length));
@@ -231,19 +193,19 @@ function RecordPlayerMove(){
             }            
         }
     }
-    
-    UpdateBoard();
 }
 
-function UpdateBoard(){
+function UpdateBoard(gameobj) {
     var txt1 = '';
     var txt2 = '';
     var lightsquares;
     var darksquares;
+    var board = gameobj[3];
     
     lightsquares = document.getElementsByClassName('light_square');
     darksquares = document.getElementsByClassName('dark_square');
     
+    // clear board
     for(var i=0;i<lightsquares.length;i++){
         if (lightsquares[i].childNodes.length > 0)
         {
@@ -257,13 +219,14 @@ function UpdateBoard(){
         }
     }
     
-    for(var i=1;i<9;i++){
-        for(var j=1;j<9;j++){
+    // reload board
+    for(var i=0;i<8;i++){
+        for(var j=0;j<8;j++){
             txt1 = board[i][j];
-            for(var k=1;k<33;k++){
-                txt2 = gamepieces[k].id;
+            for(var k=0;k<32;k++){
+                txt2 = gameobj[0][k].id;
                 if(txt1 === txt2){
-                    document.getElementById(squares[i][j]).appendChild(gamepieces[k]);
+                    document.getElementById(gameobj[1][i][j]).appendChild(gameobj[0][k]);
                     k = 33;
                 }
             }            
@@ -271,284 +234,17 @@ function UpdateBoard(){
     }
 }
 
-function StartUp(){
-    LoadPieces();
-    InitializeSquares();
-    ResetGameData();
-    LoadNewGame();
-}
-
-function ProcessMove(){    
-    var move = fromsquare + '-' + tosquare;
+// ToDo: Move to utilities
+function ProcessPlayerMove(fromsquare,tosquare,squares,player,board,compskilllvl){  
+    var playermove;
     
-    // If opponent occupies tosquare then mark move with an 'X'
-    for(var i=1;i<9;i++){
-        for(var j=1;j<9;j++){
-            if(squares[i][j] === tosquare){
-                if(player === 'white'){
-                    if(board[i][j].substring(0,1) === 'B'){
-                        move = move + 'X';
-                    }
-                }
-                else{
-                    if(board[i][j].substring(0,1) === 'W'){
-                        move = move + 'X';
-                    }                    
-                }
-            }
-        }
-    }
-    playermove = move;
+    playermove = DefinePlayerMove(fromsquare,tosquare,squares,player);
     if(IsPlayerMoveValid(playermove,moves,squares,board,player)){  // pmove,pmoves,tempsquares,tempboard,player1
-        RecordPlayerMove();   // adds move to moves[] list and outputs to window         
+        RecordPlayerMove();   // adds move to moves[] list and outputs to window
+        UpdateBoard();
         computermove = SelectComputerMove(player,board,compskilllvl);
         RecordComputerMove();
     }
-}
-
-function LoadPieces(){
-    for(var i=1;i<33;i++){
-        gamepieces[i] = null;
-    }
-    for(var i=1;i<33;i++)
-    {
-        gamepieces[i] = document.createElement('img');
-        gamepieces[i].setAttribute('class','piece');
-        gamepieces[i].setAttribute('draggable',true);
-        gamepieces[i].setAttribute('ondragstart','drag(this.id)');
-    }
-    gamepieces[1].src="graphics/rook_white.png";
-    gamepieces[1].id = 'WR1';
-    gamepieces[2].src="graphics/knight_white.png";
-    gamepieces[2].id = 'WN1';
-    gamepieces[3].src="graphics/bishop_white.png";
-    gamepieces[3].id = 'WB1';
-    gamepieces[4].src="graphics/king_white.png";
-    gamepieces[4].id = 'WK';
-    gamepieces[5].src="graphics/queen_white.png";
-    gamepieces[5].id = 'WQ';
-    gamepieces[6].src="graphics/bishop_white.png";
-    gamepieces[6].id = 'WB2';
-    gamepieces[7].src="graphics/knight_white.png";
-    gamepieces[7].id = 'WN2';
-    gamepieces[8].src="graphics/rook_white.png";
-    gamepieces[8].id = 'WR2';
-    gamepieces[9].src="graphics/pawn_white.png";
-    gamepieces[9].id = 'WP1';
-    gamepieces[10].src="graphics/pawn_white.png";
-    gamepieces[10].id = 'WP2';
-    gamepieces[11].src="graphics/pawn_white.png";
-    gamepieces[11].id = 'WP3';
-    gamepieces[12].src="graphics/pawn_white.png";
-    gamepieces[12].id = 'WP4';
-    gamepieces[13].src="graphics/pawn_white.png";
-    gamepieces[13].id = 'WP5';
-    gamepieces[14].src="graphics/pawn_white.png";
-    gamepieces[14].id = 'WP6';
-    gamepieces[15].src="graphics/pawn_white.png";
-    gamepieces[15].id = 'WP7';
-    gamepieces[16].src="graphics/pawn_white.png";
-    gamepieces[16].id = 'WP8';
-
-    gamepieces[17].src="graphics/rook_black.png";
-    gamepieces[17].id = 'BR1';
-    gamepieces[18].src="graphics/knight_black.png";
-    gamepieces[18].id = 'BN1';
-    gamepieces[19].src="graphics/bishop_black.png";
-    gamepieces[19].id = 'BB1';
-    gamepieces[20].src="graphics/king_black.png";
-    gamepieces[20].id = 'BK';
-    gamepieces[21].src="graphics/queen_black.png";
-    gamepieces[21].id = 'BQ';
-    gamepieces[22].src="graphics/bishop_black.png";
-    gamepieces[22].id = 'BB2';
-    gamepieces[23].src="graphics/knight_black.png";
-    gamepieces[23].id = 'BN2';
-    gamepieces[24].src="graphics/rook_black.png";
-    gamepieces[24].id = 'BR2';
-    gamepieces[25].src="graphics/pawn_black.png";
-    gamepieces[25].id = 'BP1';
-    gamepieces[26].src="graphics/pawn_black.png";
-    gamepieces[26].id = 'BP2';
-    gamepieces[27].src="graphics/pawn_black.png";
-    gamepieces[27].id = 'BP3';
-    gamepieces[28].src="graphics/pawn_black.png";
-    gamepieces[28].id = 'BP4';
-    gamepieces[29].src="graphics/pawn_black.png";
-    gamepieces[29].id = 'BP5';
-    gamepieces[30].src="graphics/pawn_black.png";
-    gamepieces[30].id = 'BP6';
-    gamepieces[31].src="graphics/pawn_black.png";
-    gamepieces[31].id = 'BP7';
-    gamepieces[32].src="graphics/pawn_black.png";
-    gamepieces[32].id = 'BP8';
-}
-
-function InitializeSquares(){
-    for(var i=1;i<9;i++)
-    {
-        squares[i] = new Array();
-    }
-    squares[1][1] = 'A8';
-    squares[1][2] = 'B8';
-    squares[1][3] = 'C8';
-    squares[1][4] = 'D8';
-    squares[1][5] = 'E8';
-    squares[1][6] = 'F8';
-    squares[1][7] = 'G8';
-    squares[1][8] = 'H8';
-    squares[2][1] = 'A7';
-    squares[2][2] = 'B7';
-    squares[2][3] = 'C7';
-    squares[2][4] = 'D7';
-    squares[2][5] = 'E7';
-    squares[2][6] = 'F7';
-    squares[2][7] = 'G7';
-    squares[2][8] = 'H7';
-    squares[3][1] = 'A6';
-    squares[3][2] = 'B6';
-    squares[3][3] = 'C6';
-    squares[3][4] = 'D6';
-    squares[3][5] = 'E6';
-    squares[3][6] = 'F6';
-    squares[3][7] = 'G6';
-    squares[3][8] = 'H6';
-    squares[4][1] = 'A5';
-    squares[4][2] = 'B5';
-    squares[4][3] = 'C5';
-    squares[4][4] = 'D5';
-    squares[4][5] = 'E5';
-    squares[4][6] = 'F5';
-    squares[4][7] = 'G5';
-    squares[4][8] = 'H5';
-    squares[5][1] = 'A4';
-    squares[5][2] = 'B4';
-    squares[5][3] = 'C4';
-    squares[5][4] = 'D4';
-    squares[5][5] = 'E4';
-    squares[5][6] = 'F4';
-    squares[5][7] = 'G4';
-    squares[5][8] = 'H4';
-    squares[6][1] = 'A3';
-    squares[6][2] = 'B3';
-    squares[6][3] = 'C3';
-    squares[6][4] = 'D3';
-    squares[6][5] = 'E3';
-    squares[6][6] = 'F3';
-    squares[6][7] = 'G3';
-    squares[6][8] = 'H3';
-    squares[7][1] = 'A2';
-    squares[7][2] = 'B2';
-    squares[7][3] = 'C2';
-    squares[7][4] = 'D2';
-    squares[7][5] = 'E2';
-    squares[7][6] = 'F2';
-    squares[7][7] = 'G2';
-    squares[7][8] = 'H2';
-    squares[8][1] = 'A1';
-    squares[8][2] = 'B1';
-    squares[8][3] = 'C1';
-    squares[8][4] = 'D1';
-    squares[8][5] = 'E1';
-    squares[8][6] = 'F1';
-    squares[8][7] = 'G1';
-    squares[8][8] = 'H1';
-}
-
-function LoadNewGame(){
-    var color = player;
-
-    for(var i=1;i<9;i++)
-    {
-        board[i] = new Array();
-    }
-    for(var i=3;i<7;i++)
-    {
-        for(var j=1;j<9;j++)
-        {
-            board[i][j] = '';
-        }
-    }
-    if(color === 'black')
-    {
-        board[1][1] = 'WR1';
-        board[1][2] = 'WN1';
-        board[1][3] = 'WB1';
-        board[1][4] = 'WK';
-        board[1][5] = 'WQ';
-        board[1][6] = 'WB2';
-        board[1][7] = 'WN2';
-        board[1][8] = 'WR2';
-        board[2][1] = 'WP1';
-        board[2][2] = 'WP2';
-        board[2][3] = 'WP3';
-        board[2][4] = 'WP4';
-        board[2][5] = 'WP5';
-        board[2][6] = 'WP6';
-        board[2][7] = 'WP7';
-        board[2][8] = 'WP8';
-        board[7][1] = 'BP1';
-        board[7][2] = 'BP2';
-        board[7][3] = 'BP3';
-        board[7][4] = 'BP4';
-        board[7][5] = 'BP5';
-        board[7][6] = 'BP6';
-        board[7][7] = 'BP7';
-        board[7][8] = 'BP8';
-        board[8][1] = 'BR1';
-        board[8][2] = 'BN1';
-        board[8][3] = 'BB1';
-        board[8][4] = 'BK';
-        board[8][5] = 'BQ';
-        board[8][6] = 'BB2';
-        board[8][7] = 'BN2';
-        board[8][8] = 'BR2';        
-    }
-    if(color === 'white')
-    {
-        board[1][1] = 'BR1';
-        board[1][2] = 'BN1';
-        board[1][3] = 'BB1';
-        board[1][4] = 'BQ';
-        board[1][5] = 'BK';
-        board[1][6] = 'BB2';
-        board[1][7] = 'BN2';
-        board[1][8] = 'BR2';
-        board[2][1] = 'BP1';
-        board[2][2] = 'BP2';
-        board[2][3] = 'BP3';
-        board[2][4] = 'BP4';
-        board[2][5] = 'BP5';
-        board[2][6] = 'BP6';
-        board[2][7] = 'BP7';
-        board[2][8] = 'BP8';
-        board[7][1] = 'WP1';
-        board[7][2] = 'WP2';
-        board[7][3] = 'WP3';
-        board[7][4] = 'WP4';
-        board[7][5] = 'WP5';
-        board[7][6] = 'WP6';
-        board[7][7] = 'WP7';
-        board[7][8] = 'WP8';
-        board[8][1] = 'WR1';
-        board[8][2] = 'WN1';
-        board[8][3] = 'WB1';
-        board[8][4] = 'WQ';
-        board[8][5] = 'WK';
-        board[8][6] = 'WB2';
-        board[8][7] = 'WN2';
-        board[8][8] = 'WR2';         
-    }
-    ClearWindows();
-    ClearMoves();
-    ClearProcesses();
-    ClearCapturedPieces();
-    ResetGameData();
-    UpdateAnalysisWindow();
-    if(color === 'black'){  // computer goes first if player is black
-        RecordComputerMove(SelectComputerMove());
-    }
-    UpdateBoard();
 }
 
 function CapturePiece(move){
