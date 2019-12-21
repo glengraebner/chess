@@ -7,6 +7,7 @@
 
 // Updated 12/20/2019
 function InitializePieces() {
+    
     var pieces = new Array();
     
     for(var i=0;i<32;i++)
@@ -87,6 +88,7 @@ function InitializePieces() {
 
 // Updated 12/20/2019
 function InitializeSquares() {
+    
     var squares = new Array();
     
     for(var i=0;i<8;i++)
@@ -163,6 +165,7 @@ function InitializeSquares() {
 
 // Updated 12/20/2019
 function InitializeGameVariables() {
+    
     var gamevars = new Array();
     
     gamevars[0] = '---';            // player move
@@ -179,6 +182,7 @@ function InitializeGameVariables() {
 
 // Updated 12/20/2019
 function InitializeGameBoard(gameobj) {
+    
     var player = gameobj[2][6];
     var board = new Array();
 
@@ -268,51 +272,88 @@ function InitializeGameBoard(gameobj) {
 }
 
 // Updated 12/20/2019
-function UpdateGameDataWindow(gameobj) {
+function InitializeHTMLElements() {
+    
+    // player = dataelements[0]
+    // compskilllvl = dataelements[1]
+    // playermove = dataelements[2]
+    // computermove = dataelements[3]
+    // playerscore/computerscore = dataelements[4]
+    var dataelements = new Array();
+    
+    dataelements[0] = document.body.childNodes[1].childNodes[3].childNodes[1].childNodes[7].childNodes[1].childNodes[1].childNodes[1].childNodes[3];
+    
+    dataelements[1] = document.body.childNodes[1].childNodes[3].childNodes[1].childNodes[7].childNodes[1].childNodes[1].childNodes[3].childNodes[3];
+ 
+    dataelements[2] = 
+    document.body.childNodes[1].childNodes[3].childNodes[1].childNodes[7].childNodes[1].childNodes[1].childNodes[5].childNodes[3];
+    
+    dataelements[3] = document.body.childNodes[1].childNodes[3].childNodes[1].childNodes[7].childNodes[1].childNodes[1].childNodes[7].childNodes[3];
+
+    dataelements[4] = document.body.childNodes[1].childNodes[3].childNodes[1].childNodes[7].childNodes[1].childNodes[1].childNodes[9].childNodes[3];
+    
+    return dataelements;
+}
+
+// Updated 12/21/2019
+function UpdateHTMLElements(gameobj) {
+
     var player = gameobj[2][6];
     var compskilllvl = gameobj[2][7];
     var playermove = gameobj[2][0];
     var computermove = gameobj[2][1];
     var playerscore = gameobj[2][5];
     var computerscore = gameobj[2][4];
-    var gamewindow = new Object();
-    
-    gamewindow[0] = document.body.childNodes[1].childNodes[3].childNodes[1].childNodes[7].childNodes[1].childNodes[1].childNodes[1].childNodes[3];
-    
-    gamewindow[1] = document.body.childNodes[1].childNodes[3].childNodes[1].childNodes[7].childNodes[1].childNodes[1].childNodes[3].childNodes[3];
- 
-    gamewindow[2] = 
-    document.body.childNodes[1].childNodes[3].childNodes[1].childNodes[7].childNodes[1].childNodes[1].childNodes[5].childNodes[3];
-    
-    gamewindow[3] = document.body.childNodes[1].childNodes[3].childNodes[1].childNodes[7].childNodes[1].childNodes[1].childNodes[7].childNodes[3];
 
-    gamewindow[4] = document.body.childNodes[1].childNodes[3].childNodes[1].childNodes[7].childNodes[1].childNodes[1].childNodes[9].childNodes[3];
-    
-    gamewindow[0].innerHTML = player;
-    gamewindow[1].innerHTML = compskilllvl;
-    gamewindow[2].innerHTML = playermove;
-    gamewindow[3].innerHTML = computermove;
-    gamewindow[4].innerHTML = playerscore + '/' + computerscore;   
+    gameobj[4][0].innerHTML = player;
+    gameobj[4][1].innerHTML = compskilllvl;
+    gameobj[4][2].innerHTML = playermove;
+    gameobj[4][3].innerHTML = computermove;
+    gameobj[4][4].innerHTML = playerscore + '/' + computerscore;
+
 }
 
-function LoadNewGame() {
+// Updated 12/21/2019
+function UpdateBoard(gameobj) {
     
-    moves.length = 0;
-    capturedpieces.length = 0;
-    processes.length = 0;
+    var txt1 = '';
+    var txt2 = '';
+    var lightsquares;
+    var darksquares;
+    var board = gameobj[3];
     
-    document.getElementById('moves_block').innerHTML = '';
-    document.getElementById('processing_block').innerHTML = '';
-    document.getElementById('pieces_block').innerHTML = '';
+    lightsquares = document.getElementsByClassName('light_square');
+    darksquares = document.getElementsByClassName('dark_square');
     
-    ResetGameData();
-    UpdateAnalysisWindow();
-    if(color === 'black'){  // computer goes first if player is black
-        RecordComputerMove(SelectComputerMove());
+    // clear board
+    for(var i=0;i<lightsquares.length;i++){
+        if (lightsquares[i].childNodes.length > 0)
+        {
+            lightsquares[i].removeChild(lightsquares[i].childNodes[0]);                
+        }
     }
-    UpdateBoard();
+    for(var i=0;i<darksquares.length;i++){
+        if (darksquares[i].childNodes.length > 0)
+        {
+            darksquares[i].removeChild(darksquares[i].childNodes[0]);                
+        }
+    }
     
+    // reload board
+    for(var i=0;i<8;i++){
+        for(var j=0;j<8;j++){
+            txt1 = board[i][j];
+            for(var k=0;k<32;k++){
+                txt2 = gameobj[0][k].id;
+                if(txt1 === txt2){
+                    document.getElementById(gameobj[1][i][j]).appendChild(gameobj[0][k]);
+                    k = 33;
+                }
+            }            
+        }
+    }
 }
+
 function SelectComputerMove(playercolor,tempboard,cskill) {
     var computermove;
     var step1result = [];

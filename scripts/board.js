@@ -27,16 +27,38 @@ var capturedpieces = new Array();
 var fromsquare, tosquare;
 
 function StartUp() {
-    var gameobj = new Object();
+    
+    var gameobj = new Object();                     // new game object
     
     gameobj[0] = InitializePieces();                // 32 chess pieces with listeners
     gameobj[1] = InitializeSquares();               // 64 squares on chess board  
     gameobj[2] = InitializeGameVariables();         // set of game variables
     gameobj[3] = InitializeGameBoard(gameobj);      // gameboard
-    UpdateBoard(gameobj);                           // load game board
-    UpdateGameDataWindow(gameobj);                  // load game data window
+    gameobj[4] = InitializeHTMLElements();          // connect to HTML elements
     
-    SetGame(gameobj);
+    UpdateHTMLElements(gameobj)                     // put data in HTML elements   
+    UpdateBoard(gameobj);                           // load game board   
+    SetGame(gameobj);                               // save game data
+    
+}
+
+function LoadNewGame() {
+    
+    moves.length = 0;
+    capturedpieces.length = 0;
+    processes.length = 0;
+    
+    document.getElementById('moves_block').innerHTML = '';
+    document.getElementById('processing_block').innerHTML = '';
+    document.getElementById('pieces_block').innerHTML = '';
+    
+    ResetGameData();
+    UpdateAnalysisWindow();
+    if(color === 'black'){  // computer goes first if player is black
+        RecordComputerMove(SelectComputerMove());
+    }
+    UpdateBoard();
+    
 }
 
 // Event handler
@@ -190,45 +212,6 @@ function RecordPlayerMove() {
         for(var j=0;j<9;j++){
             if(squares[i][j]===tosquare){
                 board[i][j] = selectedpiece;
-            }            
-        }
-    }
-}
-
-function UpdateBoard(gameobj) {
-    var txt1 = '';
-    var txt2 = '';
-    var lightsquares;
-    var darksquares;
-    var board = gameobj[3];
-    
-    lightsquares = document.getElementsByClassName('light_square');
-    darksquares = document.getElementsByClassName('dark_square');
-    
-    // clear board
-    for(var i=0;i<lightsquares.length;i++){
-        if (lightsquares[i].childNodes.length > 0)
-        {
-            lightsquares[i].removeChild(lightsquares[i].childNodes[0]);                
-        }
-    }
-    for(var i=0;i<darksquares.length;i++){
-        if (darksquares[i].childNodes.length > 0)
-        {
-            darksquares[i].removeChild(darksquares[i].childNodes[0]);                
-        }
-    }
-    
-    // reload board
-    for(var i=0;i<8;i++){
-        for(var j=0;j<8;j++){
-            txt1 = board[i][j];
-            for(var k=0;k<32;k++){
-                txt2 = gameobj[0][k].id;
-                if(txt1 === txt2){
-                    document.getElementById(gameobj[1][i][j]).appendChild(gameobj[0][k]);
-                    k = 33;
-                }
             }            
         }
     }
