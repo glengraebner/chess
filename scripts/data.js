@@ -11,14 +11,17 @@
 
 //  game[2] is set of game variables
 /* 
-    game[2][0] - playermove
-    game[2][1] - computermove
-    game[2][2] - validcompmoves
-    game[2][3] - numcompmoves
-    game[2][4] - computerscore
-    game[2][5] - playerscore
-    game[2][6] - player
-    game[2][7] - compskilllvl       
+    game[2][0] - player move
+    game[2][1] - computer move
+    game[2][2] - valid computer moves
+    game[2][3] - number of possible computer moves
+    game[2][4] - computer score
+    game[2][5] - player score
+    game[2][6] - player color
+    game[2][7] - computer skill level
+    game[2][8] - selected piece
+    game[2][9] - from square
+    game[2][10] - to square
 */
 
 //  game[3] is game board
@@ -26,12 +29,22 @@
 
 */
 
-//  game[4] is 
+//  game[4] is HTML elements
 /*
     game[4][0] - 
 */
 
-var game;
+//  game[5] is all moves
+/*
+    
+*/
+
+//  game[6] is tempboard
+/*
+    
+*/
+
+var game = new Object();
 
 // Update 12/20/2019
 function GetGame() {

@@ -11,49 +11,51 @@ var datafont = 'blue';
 //var player = 'white';
 //var compskilllvl = 0;  // 0 - random, 1 - beginner, 2 - intermediate, 3 - advanced
 //var gameobj[0] = new Array();
-var selectedpiece;
-var fromquare;
-var tosquare;
+//var selectedpiece;
+//var fromquare;
+//var tosquare;
 //var playermove;
 //var computermove;
 //var validcompmoves;
 //var playerscore = 0;
 //var computerscore = 0;
-var moves = new Array();
+//var moves = new Array();
 //var board = new Array(); // pieces on board
 //var squares = new Array(); // names of squares
 var processes = new Array();
 var capturedpieces = new Array();
-var fromsquare, tosquare;
+//var fromsquare, tosquare;
 
 function StartUp() {
     
-    var gameobj = new Object();                     // new game object
+    InitializePieces();                // 32 chess pieces with listeners
+    InitializeSquares();               // 64 squares on chess board  
+    InitializeGameVariables();         // set of game variables
+    InitializeGameBoard();             // gameboard
+    InitializeHTMLElements();          // connect to HTML elements
     
-    gameobj[0] = InitializePieces();                // 32 chess pieces with listeners
-    gameobj[1] = InitializeSquares();               // 64 squares on chess board  
-    gameobj[2] = InitializeGameVariables();         // set of game variables
-    gameobj[3] = InitializeGameBoard(gameobj);      // gameboard
-    gameobj[4] = InitializeHTMLElements();          // connect to HTML elements
-    
-    UpdateHTMLElements(gameobj)                     // put data in HTML elements   
-    UpdateBoard(gameobj);                           // load game board   
-    SetGame(gameobj);                               // save game data
-    
+    LoadNewGame();
 }
 
 function LoadNewGame() {
+
+    var gameobj = GetGame();
+    
+    UpdateHTMLElements(gameobj)                     // put data in HTML elements   
+    UpdateBoard(gameobj);                           // load game board  
     
     moves.length = 0;
     capturedpieces.length = 0;
     processes.length = 0;
     
+    // ToDo:  Move to HTML intialization / add to gameobj
     document.getElementById('moves_block').innerHTML = '';
     document.getElementById('processing_block').innerHTML = '';
     document.getElementById('pieces_block').innerHTML = '';
     
     ResetGameData();
     UpdateAnalysisWindow();
+    // ToDo:  Fix this to change pieces
     if(color === 'black'){  // computer goes first if player is black
         RecordComputerMove(SelectComputerMove());
     }
@@ -63,8 +65,13 @@ function LoadNewGame() {
 
 // Event handler
 function drag(id) {
-    selectedpiece = id;
-    fromsquare = document.getElementById(id).parentNode.id;
+    
+    var gameobj = GetGame();
+
+    gameobj[2][8] = id;
+    gameobj[2][9] = document.getElementById(id).parentNode.id;  // fromsquare
+    
+    SetGame(gameobj);
 }
 
 // Event handler
@@ -74,11 +81,17 @@ function allowDrop(ev) {
 
 // Event handler
 function drop(id) {
+    
+    var gameobj = GetGame();
+    
     if(id)
     {
-        tosquare = id;
-        ProcessPlayerMove(fromsquare,tosquare,squares,player,board,compskilllvl);
+        gameobj[2][10] = id;
+        gameobj = ProcessPlayerMove(gameobj);
     }
+    
+    SetGame(gameobj);
+    
 }
 
 function AddCapturedPiece(piece) {
@@ -177,70 +190,17 @@ function RecordComputerMove() {
     UpdateAnalysisWindow();
 }
 
-function RecordPlayerMove() {
-
-    // If piece captured, record capture
-    //alert(computermove.substring(computermove.length-1,computermove.length));
-    if(playermove.substring(playermove.length-1,playermove.length) === 'X'){
-        CapturePiece(playermove);
-    }
-    
-    moves[moves.length] = playermove;  //playermove is a global variable
-
-    // Output move
-    document.getElementById("moves_block").innerHTML = '';
-    for(var i=0;i<moves.length;i++){
-        if(document.getElementById("moves_block").innerHTML === ''){
-            document.getElementById("moves_block").innerHTML = "<span>" + moves[i] + "</span>";            
-        }
-        else{
-            document.getElementById("moves_block").innerHTML = document.getElementById("moves_block").innerHTML + "<br/><span>" + moves[i] + "</span>";            
-        }
-    }
-    
-    for(var i=1;i<9;i++)
-    {
-        for(var j=1;j<9;j++)
-        {
-            if(board[i][j]===selectedpiece)
-            {
-                board[i][j]='';
-            }
-        }
-    }
-    for(var i=1;i<9;i++){
-        for(var j=0;j<9;j++){
-            if(squares[i][j]===tosquare){
-                board[i][j] = selectedpiece;
-            }            
-        }
-    }
-}
-
-// ToDo: Move to utilities
-function ProcessPlayerMove(fromsquare,tosquare,squares,player,board,compskilllvl){  
-    var playermove;
-    
-    playermove = DefinePlayerMove(fromsquare,tosquare,squares,player);
-    if(IsPlayerMoveValid(playermove,moves,squares,board,player)){  // pmove,pmoves,tempsquares,tempboard,player1
-        RecordPlayerMove();   // adds move to moves[] list and outputs to window
-        UpdateBoard();
-        computermove = SelectComputerMove(player,board,compskilllvl);
-        RecordComputerMove();
-    }
-}
-
 function CapturePiece(move){
     
     var didcapture, wascapture;
     
-    for(var i=1;i<9;i++){
-        for(var j=1;j<9;j++){
-            if(squares[i][j] === move.substring(3,5)){                
+    for(var i=0;i<8;i++){
+        for(var j=0;j<8;j++){
+            if(gameobj[1][i][j] === move.substring(3,5)){                
                 capturedpieces[capturedpieces.length] = board[i][j];
                 wascapture = board[i][j];
             }
-            if(squares[i][j] === move.substring(0,2)){                
+            if(gameobj[1][i][j] === move.substring(0,2)){                
                 didcapture = board[i][j];
             }
         }

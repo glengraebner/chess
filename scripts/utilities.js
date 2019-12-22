@@ -5,9 +5,11 @@
  * @return {string} computermove -- Next computer move.
  */
 
-// Updated 12/20/2019
+// Initialization - updated 12/22/2019
+
 function InitializePieces() {
     
+    var gameobj = GetGame();
     var pieces = new Array();
     
     for(var i=0;i<32;i++)
@@ -83,12 +85,13 @@ function InitializePieces() {
     pieces[31].src="graphics/pawn_black.png";
     pieces[31].id = 'BP8';
     
-    return pieces;
+    gameobj[0] = pieces;
+    SetGame(gameobj);
 }
 
-// Updated 12/20/2019
 function InitializeSquares() {
     
+    var gameobj = GetGame();
     var squares = new Array();
     
     for(var i=0;i<8;i++)
@@ -160,12 +163,13 @@ function InitializeSquares() {
     squares[7][6] = 'G1';
     squares[7][7] = 'H1';
     
-    return squares;
+    gameobj[1] = squares;
+    SetGame(gameobj);
 }
 
-// Updated 12/20/2019
 function InitializeGameVariables() {
     
+    var gameobj = GetGame();
     var gamevars = new Array();
     
     gamevars[0] = '---';            // player move
@@ -177,12 +181,13 @@ function InitializeGameVariables() {
     gamevars[6] = 'Black';          // player color
     gamevars[7] = 'Beginner';       // computer skill level
     
-    return gamevars;
+    gameobj[2] = gamevars;
+    SetGame(gameobj);
 }
 
-// Updated 12/20/2019
-function InitializeGameBoard(gameobj) {
+function InitializeGameBoard() {
     
+    var gameobj = GetGame();
     var player = gameobj[2][6];
     var board = new Array();
 
@@ -268,10 +273,10 @@ function InitializeGameBoard(gameobj) {
         board[7][7] = 'WR2';         
     }
     
-    return board;
+    gameobj[3] = board;
+    SetGame(gameobj);
 }
 
-// Updated 12/20/2019
 function InitializeHTMLElements() {
     
     // player = dataelements[0]
@@ -279,6 +284,7 @@ function InitializeHTMLElements() {
     // playermove = dataelements[2]
     // computermove = dataelements[3]
     // playerscore/computerscore = dataelements[4]
+    var gameobj = GetGame();
     var dataelements = new Array();
     
     dataelements[0] = document.body.childNodes[1].childNodes[3].childNodes[1].childNodes[7].childNodes[1].childNodes[1].childNodes[1].childNodes[3];
@@ -292,8 +298,11 @@ function InitializeHTMLElements() {
 
     dataelements[4] = document.body.childNodes[1].childNodes[3].childNodes[1].childNodes[7].childNodes[1].childNodes[1].childNodes[9].childNodes[3];
     
-    return dataelements;
+    gameobj[4] = dataelements;
+    SetGame(gameobj);
 }
+
+
 
 // Updated 12/21/2019
 function UpdateHTMLElements(gameobj) {
@@ -354,6 +363,188 @@ function UpdateBoard(gameobj) {
     }
 }
 
+// Updated 12/21/2019
+function ProcessPlayerMove(gameobj){
+    
+    gameobj[2][0] = DefinePlayerMove(gameobj); // playermove
+    if(IsPlayerMoveValid(gameobj)){  // pmove,pmoves,tempsquares,tempboard,player1
+        gameobj = RecordPlayerMove(gameobj);   // adds move to moves[] list and outputs to window
+        UpdateBoard(gameobj);
+        gameobj[2][1] = SelectComputerMove(gameobj); // computermove
+        gameobj = RecordComputerMove(gameobj);
+    }
+    
+    return gameobj;
+    
+}
+
+// Updated 12/21/2019
+function DefinePlayerMove(gameobj) {
+    
+    var move = gameobj[2][9] + '-' + gameobj[2][10]; // fromsquare, tosqaure
+    
+    // If opponent occupies tosquare then mark move with an 'X'
+    for(var i=0;i<8;i++){
+        for(var j=0;j<8;j++){
+            if(gameobj[1][i][j] === gameobj[2][10]){
+                if(gameobj[2][6] === 'white'){
+                    if(gameobj[1][i][j].substring(0,1) === 'B'){
+                        move = move + 'X';
+                    }
+                }
+                else{
+                    if(gameobj[1][i][j].substring(0,1) === 'W'){
+                        move = move + 'X';
+                    }                    
+                }
+            }
+        }
+    }
+    
+    return move;
+    
+}
+
+// Updated 12/21/2019
+/**
+ * Returns true if player move is valid.
+ *
+ * @param {object} gameobj -- Game data
+ * @return {boolean} isvalid -- Move valid status
+ */
+function IsPlayerMoveValid(gameobj) {
+    
+    var isvalid = true;
+    var bi, bj;
+    var txt = '';
+
+    LoadProcess('Begin IsPlayerMoveValid()');
+    LoadProcess('Player Move: ' + gameobj[2][0]);
+    
+    // get player move squares[][] components
+    for(var i=0;i<8;i++){
+        for(var j=0;j<8;j++){
+            if(gameobj[1][i][j]===gameobj[2][0].substring(0,2)){
+                bi = i;
+                bj = j;
+            }
+        }
+    }
+
+    // check that move was completed   
+    if(gameobj[2][0].substring(0,2) === gameobj[2][0].substring(3,5)){
+        isvalid = false;
+        LoadProcess('Incomplete move');
+        LoadProcess('End IsPlayerMoveValid()');
+        return isvalid;
+    }
+    
+    // check that white goes first
+    if(gameobj[4].length === 0){
+        // look up piece on board square [i][j]
+        txt = gameobj[3][bi][bj];
+        if(txt!=''){
+            // check if white piece
+            if(txt.substring(0,1)==='W'){
+                LoadProcess('White player moved first -> Allowed');
+            }
+            else{
+                isvalid = false;
+                LoadProcess('Black player moved first -> Not Allowed');
+                LoadProcess("End IsPlayerMoveValid()");
+                return isvalid;
+            }
+        }       
+    }
+    
+    // check that own piece is moved
+    if(gameobj[2][6] === 'White') {
+        txt = gameobj[3][bi][bj];
+        if(txt.substring(0,1)==='W') {
+            LoadProcess('White player moved white piece -> Allowed');
+        }
+        else {
+            isvalid = false;
+            LoadProcess('White player moved black piece -> Not allowed');
+            LoadProcess("End IsPlayerMoveValid()");
+            return isvalid;
+        }
+    }
+    else {
+        if(gameobj[3][bi][bj].substring(0,1)==='W') {
+            isvalid = false;
+            LoadProcess('Black player moved white piece - Not Allowed');
+            LoadProcess("End IsPlayerMoveValid()");
+            return isvalid;
+        }
+        else {
+            LoadProcess('Black player moved black piece - Allowed');
+        }            
+    }
+
+    
+    // check that player didn't capture own color
+    // bishops can't move through occupied squares
+    // rooks can't move through occupied squares
+    // queens can't move through occupied squares
+    // kings move only one square (unless castle)
+    // king-rook castle can only occur if no pieces are in between them and neither has moved
+    // rooks can move horizontally or vertically multiple squares
+    // bishops can move diagonally multiple squares
+    // pawns can only move one square vertically except on first move can move two squares vertically or can move diagonally one square while capturing
+    // knights move in 1-2 or 2-1 L-shaped squares
+    // king in checkmate -> game over
+    // pawn to other end -> new piece
+    
+    LoadProcess('End IsPlayerMoveValid()');
+    
+    return isvalid;
+}
+
+// Updated 12/21/2019
+function RecordPlayerMove(gameobj) {
+
+    // If piece captured, record capture
+    //alert(computermove.substring(computermove.length-1,computermove.length));
+    if(gameobj[2][0].substring(gameobj[2][0].length-1,gameobj[2][0].length) === 'X'){
+        CapturePiece(gameobj);
+    }
+    
+    gameobj[4][gameobj[4].length] = gameobj[2][0];  //playermove is a global variable
+
+    // Output move
+    document.getElementById("moves_block").innerHTML = '';
+    for(var i=0;i<gameobj[4].length;i++){
+        if(document.getElementById("moves_block").innerHTML === ''){
+            document.getElementById("moves_block").innerHTML = "<span>" + gameobj[4][i] + "</span>";            
+        }
+        else{
+            document.getElementById("moves_block").innerHTML = document.getElementById("moves_block").innerHTML + "<br/><span>" + gameobj[4][i] + "</span>";            
+        }
+    }
+    
+    for(var i=0;i<8;i++)
+    {
+        for(var j=0;j<8;j++)
+        {
+            if(gameobj[3][i][j]===gameobj[2][8])
+            {
+                gameobj[3][i][j]='';
+            }
+        }
+    }
+    for(var i=0;i<8;i++){
+        for(var j=0;j<8;j++){
+            if(gameobj[1][i][j]===gameobj[2][10]){
+                gameobj[3][i][j] = gameobj[2][8];
+            }            
+        }
+    }
+    
+    return gameobj;
+    
+}
+
 function SelectComputerMove(playercolor,tempboard,cskill) {
     var computermove;
     var step1result = [];
@@ -409,129 +600,6 @@ function SelectComputerMove(playercolor,tempboard,cskill) {
     UpdateAnalysisWindow();
     
     return computermove;
-}
-
-function DefinePlayerMove(fromsquare,tosquare,squares,player) {
-    var move = fromsquare + '-' + tosquare;
-    
-    // If opponent occupies tosquare then mark move with an 'X'
-    for(var i=1;i<9;i++){
-        for(var j=1;j<9;j++){
-            if(squares[i][j] === tosquare){
-                if(player === 'white'){
-                    if(board[i][j].substring(0,1) === 'B'){
-                        move = move + 'X';
-                    }
-                }
-                else{
-                    if(board[i][j].substring(0,1) === 'W'){
-                        move = move + 'X';
-                    }                    
-                }
-            }
-        }
-    }  
-    return move;
-}
-
-// ToDo: Update this to IsMoveValid and take out player1 param
-/**
- * Returns true if player move is valid.
- *
- * @param {string} pmove -- The temporary chessboard.
- * @param {array} allmoves -- List of all moves so far.
- * @param {array} tempsquares -- The temporary squares.
- * @param {array} tempboard -- The temporary chessboard.
- * @param {string} player1 -- Player color value (black/white).
- * @return {boolean} isvalid -- Move valid status.
- */
-function IsPlayerMoveValid(pmove,allmoves,tempsquares,tempboard,player1) {
-    
-    var isvalid = true;
-    var bi, bj;
-    var txt = '';
-
-    LoadProcess('Begin IsPlayerMoveValid()');
-    LoadProcess('Player Move: ' + pmove);
-    
-    // get player move squares[][] components
-    for(var i=1;i<9;i++){
-        for(var j=1;j<9;j++){
-            if(tempsquares[i][j]===pmove.substring(0,2)){
-                bi = i;
-                bj = j;
-            }
-        }
-    }
-
-    // check that move was completed   
-    if(pmove.substring(0,2) === pmove.substring(3,5)){
-        isvalid = false;
-        LoadProcess('Incomplete move');
-        LoadProcess('End IsPlayerMoveValid()');
-        return isvalid;
-    }
-    
-    // check that white goes first
-    if(allmoves.length === 0){
-        // look up piece on board square [i][j]
-        txt = tempboard[bi][bj];
-        if(txt!=''){
-            // check if white piece
-            if(txt.substring(0,1)==='W'){
-                LoadProcess('White player moved first -> Allowed');
-            }
-            else{
-                isvalid = false;
-                LoadProcess('Black player moved first -> Not Allowed');
-                LoadProcess("End IsPlayerMoveValid()");
-                return isvalid;
-            }
-        }       
-    }
-    
-    // check that own piece is moved
-    if(player1 === 'white') {
-        txt = tempboard[bi][bj];
-        if(txt.substring(0,1)==='W') {
-            LoadProcess('White player moved white piece -> Allowed');
-        }
-        else {
-            isvalid = false;
-            LoadProcess('White player moved black piece -> Not allowed');
-            LoadProcess("End IsPlayerMoveValid()");
-            return isvalid;
-        }
-    }
-    else {
-        if(tempboard[bi][bj].substring(0,1)==='W') {
-            isvalid = false;
-            LoadProcess('Black player moved white piece - Not Allowed');
-            LoadProcess("End IsPlayerMoveValid()");
-            return isvalid;
-        }
-        else {
-            LoadProcess('Black player moved black piece - Allowed');
-        }            
-    }
-
-    
-    // check that player didn't capture own color
-    // bishops can't move through occupied squares
-    // rooks can't move through occupied squares
-    // queens can't move through occupied squares
-    // kings move only one square (unless castle)
-    // king-rook castle can only occur if no pieces are in between them and neither has moved
-    // rooks can move horizontally or vertically multiple squares
-    // bishops can move diagonally multiple squares
-    // pawns can only move one square vertically except on first move can move two squares vertically or can move diagonally one square while capturing
-    // knights move in 1-2 or 2-1 L-shaped squares
-    // king in checkmate -> game over
-    // pawn to other end -> new piece
-    
-    LoadProcess('End IsPlayerMoveValid()');
-    
-    return isvalid;
 }
 
 /**
