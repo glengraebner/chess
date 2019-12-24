@@ -45,9 +45,9 @@
     game[4][7] - pieces
 */
 
-//  game[5] is valid moves
+//  game[5] is ...
 /*
-    game[5][0] is which player's move
+    
 */
 
 //  game[6] is ...
@@ -304,7 +304,7 @@ function InitializeGameVariables() {
     if(!gamevars[6]) {
         gamevars[6] = 'White';      // default player color    
     }
-    gamevars[7] = 'Random';       // computer skill level
+    gamevars[7] = 0;                // computer skill level
     gamevars[8] = '';               // selected piece
     gamevars[9] = '';               // from square
     gamevars[10] = '';              // to square
@@ -485,11 +485,25 @@ function UpdateGameDataWindow() {
     var gameobj = GetGame();
     
     var player = gameobj[2][6];
-    var compskilllvl = gameobj[2][7];
+    var cskill = gameobj[2][7];
+    var compskilllvl;
     var playermove = gameobj[2][0];
     var computermove = gameobj[2][1];
     var playerscore = gameobj[2][5];
     var computerscore = gameobj[2][4];
+    
+    if(cskill === 0) {
+        compskilllvl = 'Random';
+    }
+    if(cskill === 1) {
+        compskilllvl = 'Beginner';
+    }
+    if(cskill === 2) {
+        compskilllvl = 'Novice';
+    }
+    if(cskill === 3) {
+        compskilllvl = 'Intermediate';
+    }
     
     gameobj[4][0].innerHTML = player;
     gameobj[4][1].innerHTML = compskilllvl;
@@ -576,6 +590,9 @@ function SwitchSides() {
 
 function ToggleCompSkillLevel() {
 
+    var gameobj = GetGame();
+    var compskilllvl = gameobj[2][7];
+    
     if(compskilllvl === 0){
         compskilllvl = 1;
         AddProcessItem('computer skill level: 1');        
@@ -592,13 +609,19 @@ function ToggleCompSkillLevel() {
         compskilllvl = 0;
         AddProcessItem('computer skill level: 0');        
     }
-    UpdateAnalysisWindow();
+    
+    gameobj[2][7] = compskilllvl;
+    UpdateGameDataWindow();
+    SetGame(gameobj);
 }
 
-function RecordComputerMove() {
+function RecordComputerMove(gameobj) {
     
     var m,n,p,q;
-    var move = computermove;
+    var computermove = gameobj[2][1];  // computer move
+    var squares = gameobj[1];
+    var board = gameobj[3];
+    var selectedpiece;
     
     // If piece captured, record capture
     //alert(computermove.substring(computermove.length-1,computermove.length));
@@ -606,36 +629,27 @@ function RecordComputerMove() {
         CapturePiece(computermove);
     }
     
-    moves[moves.length] = move;
-
-    // Output move
-    document.getElementById("moves_block").innerHTML = '';
-    for(var i=0;i<moves.length;i++){
-        if(document.getElementById("moves_block").innerHTML === ''){
-            document.getElementById("moves_block").innerHTML = "<span>" + moves[i] + "</span>";            
-        }
-        else{
-            document.getElementById("moves_block").innerHTML = document.getElementById("moves_block").innerHTML + "<br/><span>" + moves[i] + "</span>";            
-        }
-    }    
-    for(m=1;m<9;m++){
-        for(n=1;n<9;n++){
-            if(squares[m][n]===move.substring(0,2)){
+    AddMove(computermove);
+  
+    for(m=0;m<8;m++){
+        for(n=0;n<8;n++){
+            if(squares[m][n]===computermove.substring(0,2)){
                 selectedpiece = board[m][n];
                 board[m][n] = '';
             }
         }       
     }
-    for(p=1;p<9;p++){
-        for(q=1;q<9;q++){
-            if(squares[p][q]===move.substring(3,5)){
+    for(p=0;p<8;p++){
+        for(q=0;q<8;q++){
+            if(squares[p][q]===computermove.substring(3,5)){
                 board[p][q] = selectedpiece;
             }
         }
     }
     
-    UpdateBoard();
-    UpdateAnalysisWindow();
+    LoadGameBoard(gameobj);
+    UpdateGameDataWindow();
+    
 }
 
 function CapturePiece(move){

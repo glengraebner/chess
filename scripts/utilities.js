@@ -54,7 +54,7 @@ function ProcessPlayerMove(gameobj){
         gameobj = RecordPlayerMove(gameobj);   // adds move to moves[] list and outputs to window
         LoadGameBoard(gameobj);
         gameobj[2][1] = SelectComputerMove(gameobj); // computermove
-        gameobj = RecordComputerMove(gameobj);
+        RecordComputerMove(gameobj);
     }
     
     return gameobj;
@@ -221,7 +221,7 @@ function RecordPlayerMove(gameobj) {
     
 }
 
-// ToDo: Finish this next
+// Updated 12/24/2019
 function SelectComputerMove(gameobj) {
     
     var computermove;
@@ -241,7 +241,7 @@ function SelectComputerMove(gameobj) {
         whichplayersmove = "Black";
     }
     
-    gameobj[5][0] = whichplayersmove;
+    gameobj[2][14] = whichplayersmove;
  
     // Select computer move based on compskilllvl(0-4)
     /*
@@ -261,18 +261,20 @@ function SelectComputerMove(gameobj) {
     
     */
     
-    if(cskill === 'Random') {
+    if(cskill === 0) {
         computermove = PickRandomMove(gameobj);
     }
-    if(cskill === 'Beginner') {
+    if(cskill === 1) {
         // while(move != "")
         step1result = PickBestPointsMove1Step(gameobj);
         computermove = step1result[0];
     }
-    if(cskill === 'Novice') {
+    if(cskill === 2) {
         step2result = PickBestPointsMove2Step(gameobj);
         computermove = step2result[0];
     }
+    
+    AddProcessItem("Computer Move: " + computermove);
     
     AddProcessItem("End SelectComputerMove()");
     //UpdateAnalysisWindow();
@@ -280,64 +282,13 @@ function SelectComputerMove(gameobj) {
     return computermove;
 }
 
-function GetValidMoves(whichplayersmove,tempboard) {
-    var txt1, txt2;
-    var posmoves = [];
-    var validmoves = [];
-    // Loads validmoves array with possible computer moves
-     
-    AddProcessItem("Begin GetValidMoves()");
+// Updated 12/24/2019
+function GetPossiblePieceMoves(piece,ipos,jpos,gameobj) {
     
-    // Read board
-    for(var i=1;i<9;i++){
-        for(var j=1;j<9;j++){
-            txt1 = tempboard[i][j];
-            if((whichplayersmove === 'White' && txt1.substring(0,1)==='W') || (whichplayersmove === 'Black' && txt1.substring(0,1)==='B')){
-                posmoves = AnalyzePieceMove(txt1,i,j);  // By piece type, determine valid move(s)
-                for(var k=0;k<posmoves.length;k++){
-                    validmoves[validmoves.length] = posmoves[k];  // Add move to validmoves[]
-                }                   
-            }
-        }
-    }
-    txt1 = '';
-    for(var i=0;i<validmoves.length;i++){
-        if(i == validmoves.length-1)
-        {
-            txt1 = txt1 + validmoves[i];
-        }
-        else
-        {
-            txt1 = txt1 + validmoves[i] + ',';
-        }       
-    }
-    //validcompmoves = txt1;
-    AddProcessItem("Valid moves for " + whichplayersmove + " (" + validmoves.length + "): " + txt1);
-
-    // Display valid moves in Analysis window
-    
-    AddProcessItem("End GetValidMoves()");
-    
-    return validmoves;
-}
-
-function UpdateKnightMoves(iinc,jinc,ipos,jpos,piece,posmoves) {
-    if(ipos + iinc < 9 && ipos + iinc > 0 && jpos + jinc < 9 && jpos + jinc > 0){
-        //alert(iinc + ' ' + jinc);
-        if(board[ipos + iinc][jpos + jinc] === ''){
-            posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc];
-        }
-        else{
-            if(board[ipos + iinc][jpos + jinc].substring(0,1) != piece.substring(0,1)){
-                posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc] + 'X';
-            }
-        }
-    }
-}
-
-function AnalyzePieceMove(piece,ipos,jpos) {
     var posmoves = [];
     var iinc, jinc;
+    var board = gameobj[3];
+    var squares = gameobj[1];
     
     // Row = i, Column = j
     
@@ -345,7 +296,7 @@ function AnalyzePieceMove(piece,ipos,jpos) {
     if(piece.substring(1,2)==='K'){
             
         // 12:00
-        if(ipos > 1){
+        if(ipos > 0){
             if(board[ipos - 1][jpos] === ''){ // blank square is legal move
                 posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos - 1][jpos];
             }
@@ -357,7 +308,7 @@ function AnalyzePieceMove(piece,ipos,jpos) {
         }
 
         // 1:30
-        if(ipos > 1 && jpos < 8){
+        if(ipos > 0 && jpos < 7){
             if(board[ipos - 1][jpos + 1] === ''){ // blank square is legal move
                 posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos - 1][jpos + 1];
             }
@@ -369,7 +320,7 @@ function AnalyzePieceMove(piece,ipos,jpos) {
         }
         
         // 3:00
-        if(jpos < 8){
+        if(jpos < 7){
             if(board[ipos][jpos + 1] === ''){ // blank square is legal move
                 posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos][jpos + 1];
             }
@@ -381,7 +332,7 @@ function AnalyzePieceMove(piece,ipos,jpos) {
         }
         
         // 4:30
-        if(ipos < 8 && jpos < 8){
+        if(ipos < 7 && jpos < 7){
             if(board[ipos + 1][jpos + 1] === ''){ // blank square is legal move
                 posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + 1][jpos + 1];
             }
@@ -393,7 +344,7 @@ function AnalyzePieceMove(piece,ipos,jpos) {
         }
         
         // 6:00
-        if(ipos < 8){
+        if(ipos < 7){
             if(board[ipos + 1][jpos] === ''){ // blank square is legal move
                 posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + 1][jpos];
             }
@@ -405,7 +356,7 @@ function AnalyzePieceMove(piece,ipos,jpos) {
         }
         
         // 7:30
-        if(ipos < 8 && jpos > 1){
+        if(ipos < 7 && jpos > 0){
             if(board[ipos + 1][jpos - 1] === ''){ // blank square is legal move
                 posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + 1][jpos - 1];
             }
@@ -417,7 +368,7 @@ function AnalyzePieceMove(piece,ipos,jpos) {
         }
         
         // 9:00
-        if(jpos > 1){
+        if(jpos > 0){
             if(board[ipos][jpos - 1] === ''){ // blank square is legal move
                 posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos][jpos - 1];
             }
@@ -429,7 +380,7 @@ function AnalyzePieceMove(piece,ipos,jpos) {
         }
         
         // 10:30
-        if(ipos > 1 && jpos > 1){
+        if(ipos > 0 && jpos > 0){
             if(board[ipos - 1][jpos - 1] === ''){ // blank square is legal move
                 posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos - 1][jpos - 1];
             }
@@ -446,67 +397,67 @@ function AnalyzePieceMove(piece,ipos,jpos) {
     if(piece.substring(1,2)==='R' || piece.substring(1,2)==='Q'){
         
         // Vertical - down
-        for(var i=ipos+1;i<9;i++){
+        for(var i=ipos+1;i<8;i++){
             if(board[i][jpos] === ''){ // blank square is legal move
                 posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[i][jpos];
             }
             else{  // non-blank square
                 if(board[i][jpos].substring(0,1) != piece.substring(0,1)){  // player piece
                     posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[i][jpos] + 'X';
-                    i = 9;
+                    i = 8;
                 }
                 else{  // computer piece
                     //alert('computer piece: i=' + i + ', j=' + jpos);
-                    i = 9;
+                    i = 8;
                 }
             }
         }
         
         // vertical - up
-        for(var i=ipos-1;i>0;i--){
+        for(var i=ipos-1;i>-1;i--){
             if(board[i][jpos] === ''){ // blank square is legal move
                 posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[i][jpos];
             }
             else{  // non-blank square
                 if(board[i][jpos].substring(0,1) != piece.substring(0,1)){  // player piece
                     posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[i][jpos] + 'X';
-                    i = 0;
+                    i = -1;
                 }
                 else{  // computer piece
                     //alert('computer piece: i=' + i + ', j=' + jpos);
-                    i = 0;
+                    i = -1;
                 }
             }
         }
         
         // Horizontal - left
-        for(var j=jpos-1;j>0;j--){
+        for(var j=jpos-1;j>-1;j--){
             if(board[ipos][j] === ''){ // blank square is legal move
                 posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos][j];
             }
             else{  // non-blank square
                 if(board[ipos][j].substring(0,1) != piece.substring(0,1)){  // player piece
                     posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos][j] + 'X';
-                    j = 0;
+                    j = -1;
                 }
                 else{  // computer piece
-                    j = 0;
+                    j = -1;
                 }
             }
         }
 
         // Horizontal - right
-        for(var j=jpos+1;j<9;j++){
+        for(var j=jpos+1;j<8;j++){
             if(board[ipos][j] === ''){ // blank square is legal move
                 posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos][j];
             }
             else{  // non-blank square
                 if(board[ipos][j].substring(0,1) != piece.substring(0,1)){  // player piece
                     posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos][j] + 'X';
-                    j = 9;
+                    j = 8;
                 }
                 else{  // computer piece
-                    j = 9;
+                    j = 8;
                 }
             }
         }   
@@ -516,125 +467,197 @@ function AnalyzePieceMove(piece,ipos,jpos) {
     if(piece.substring(1,2)==='N'){
         iinc = 1;
         jinc = 2;       
-        UpdateKnightMoves(iinc,jinc,ipos,jpos,piece,posmoves);
+        if(ipos + iinc < 8 && ipos + iinc > -1 && jpos + jinc < 8 && jpos + jinc > -1){
+            if(board[ipos + iinc][jpos + jinc] === ''){
+                posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc];
+            }
+            else{
+                if(board[ipos + iinc][jpos + jinc].substring(0,1) != piece.substring(0,1)){
+                    posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc] + 'X';
+                }
+            }
+        }
         iinc = -1;
         jinc = 2;
-        UpdateKnightMoves(iinc,jinc,ipos,jpos,piece,posmoves);
+        if(ipos + iinc < 8 && ipos + iinc > -1 && jpos + jinc < 8 && jpos + jinc > -1){
+            if(board[ipos + iinc][jpos + jinc] === ''){
+                posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc];
+            }
+            else{
+                if(board[ipos + iinc][jpos + jinc].substring(0,1) != piece.substring(0,1)){
+                    posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc] + 'X';
+                }
+            }
+        }
         iinc = 1;
         jinc = -2;
-        UpdateKnightMoves(iinc,jinc,ipos,jpos,piece,posmoves);
+        if(ipos + iinc < 8 && ipos + iinc > -1 && jpos + jinc < 8 && jpos + jinc > -1){
+            if(board[ipos + iinc][jpos + jinc] === ''){
+                posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc];
+            }
+            else{
+                if(board[ipos + iinc][jpos + jinc].substring(0,1) != piece.substring(0,1)){
+                    posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc] + 'X';
+                }
+            }
+        }
         iinc = -1;
         jinc = -2;
-        UpdateKnightMoves(iinc,jinc,ipos,jpos,piece,posmoves);
+        if(ipos + iinc < 8 && ipos + iinc > -1 && jpos + jinc < 8 && jpos + jinc > -1){
+            if(board[ipos + iinc][jpos + jinc] === ''){
+                posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc];
+            }
+            else{
+                if(board[ipos + iinc][jpos + jinc].substring(0,1) != piece.substring(0,1)){
+                    posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc] + 'X';
+                }
+            }
+        }
         iinc = 2;
         jinc = 1;
-        UpdateKnightMoves(iinc,jinc,ipos,jpos,piece,posmoves);
+        if(ipos + iinc < 8 && ipos + iinc > -1 && jpos + jinc < 8 && jpos + jinc > -1){
+            if(board[ipos + iinc][jpos + jinc] === ''){
+                posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc];
+            }
+            else{
+                if(board[ipos + iinc][jpos + jinc].substring(0,1) != piece.substring(0,1)){
+                    posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc] + 'X';
+                }
+            }
+        }
         iinc = -2;
         jinc = 1;
-        UpdateKnightMoves(iinc,jinc,ipos,jpos,piece,posmoves);
+        if(ipos + iinc < 8 && ipos + iinc > -1 && jpos + jinc < 8 && jpos + jinc > -1){
+            if(board[ipos + iinc][jpos + jinc] === ''){
+                posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc];
+            }
+            else{
+                if(board[ipos + iinc][jpos + jinc].substring(0,1) != piece.substring(0,1)){
+                    posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc] + 'X';
+                }
+            }
+        }
         iinc = 2;
         jinc = -1;
-        UpdateKnightMoves(iinc,jinc,ipos,jpos,piece,posmoves);
+        if(ipos + iinc < 8 && ipos + iinc > -1 && jpos + jinc < 8 && jpos + jinc > -1){
+            if(board[ipos + iinc][jpos + jinc] === ''){
+                posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc];
+            }
+            else{
+                if(board[ipos + iinc][jpos + jinc].substring(0,1) != piece.substring(0,1)){
+                    posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc] + 'X';
+                }
+            }
+        }
         iinc = -2;
         jinc = -1;
-        UpdateKnightMoves(iinc,jinc,ipos,jpos,piece,posmoves);
+        if(ipos + iinc < 8 && ipos + iinc > -1 && jpos + jinc < 8 && jpos + jinc > -1){
+            if(board[ipos + iinc][jpos + jinc] === ''){
+                posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc];
+            }
+            else{
+                if(board[ipos + iinc][jpos + jinc].substring(0,1) != piece.substring(0,1)){
+                    posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + iinc][jpos + jinc] + 'X';
+                }
+            }
+        }
     }
     
     // Bishop (or Queen)
     if(piece.substring(1,2)==='B' || piece.substring(1,2)==='Q'){
         var j = 0;
         // diagonal - down, right
-        for(var i=ipos+1;i<9;i++){
+        for(var i=ipos+1;i<8;i++){
             j = j + 1;
-            if(jpos + j < 9){
+            if(jpos + j < 8){
                 if(board[i][jpos + j] === ''){ // blank square is legal move
                     posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[i][jpos + j];
                 }
                 else{  // non-blank square
                     if(board[i][jpos + j].substring(0,1) != piece.substring(0,1)){  // player piece
                         posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[i][jpos + j] + 'X';
-                        i = 9;
+                        i = 8;
                     }
                     else{  // computer piece
-                        i = 9;
+                        i = 8;
                     }
                 }
             }
             else{
-                i = 9;
+                i = 8;
             }
         }
         // diagonal - down, left
         j = 0;
-        for(var i=ipos+1;i<9;i++){
+        for(var i=ipos+1;i<8;i++){
             j = j - 1;
-            if(jpos + j > 0){
+            if(jpos + j > -1){
                 if(board[i][jpos + j] === ''){ // blank square is legal move
                     posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[i][jpos + j];
                 }
                 else{  // non-blank square
                     if(board[i][jpos + j].substring(0,1) != piece.substring(0,1)){  // player piece
                         posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[i][jpos + j] + 'X';
-                        i = 9;
+                        i = 8;
                     }
                     else{  // computer piece
-                        i = 9;
+                        i = 8;
                     }
                 }
             }
             else{
-                i = 9;
+                i = 8;
             }
         }
         // diagonal - up, left
         j = 0;
-        for(var i=ipos-1;i>0;i--){
+        for(var i=ipos-1;i>-1;i--){
             j = j - 1;
-            if(jpos + j > 0){
+            if(jpos + j > -1){
                 if(board[i][jpos + j] === ''){ // blank square is legal move
                     posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[i][jpos + j];
                 }
                 else{  // non-blank square
                     if(board[i][jpos + j].substring(0,1) != piece.substring(0,1)){  // player piece
                         posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[i][jpos + j] + 'X';
-                        i = 0;
+                        i = -1;
                     }
                     else{  // computer piece
-                        i = 0;
+                        i = -1;
                     }
                 }
             }
             else{
-                i = 0;
+                i = -1;
             }
         }
         // diagonal - up, right
         j = 0;
-        for(var i=ipos-1;i>0;i--){
+        for(var i=ipos-1;i>-1;i--){
             j = j + 1;
-            if(jpos + j < 9){
+            if(jpos + j < 8){
                 if(board[i][jpos + j] === ''){ // blank square is legal move
                     posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[i][jpos + j];
                 }
                 else{  // non-blank square
                     if(board[i][jpos + j].substring(0,1) != piece.substring(0,1)){  // player piece
                         posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[i][jpos + j] + 'X';
-                        i = 0;
+                        i = -1;
                     }
                     else{  // computer piece
-                        i = 0;
+                        i = -1;
                     }
                 }
             }
             else{
-                i = 0;
+                i = -1;
             }
         }
     }
     
     // Pawn
     if(piece.substring(1,2)==='P'){
-        if(ipos + 1 < 9){
+        if(ipos + 1 < 8){
             if(board[ipos + 1][jpos] === ''){ // blank square is legal move
                 posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + 1][jpos];
             }            
@@ -644,12 +667,12 @@ function AnalyzePieceMove(piece,ipos,jpos) {
                 posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + 2][jpos];
             }
         }
-        if(jpos > 1){
+        if(jpos > 0){
             if(board[ipos + 1][jpos - 1] !== '' && board[ipos + 1][jpos - 1].substring(0,1) != piece.substring(0,1)){  // diagonal capture of player piece
                 posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + 1][jpos - 1] + 'X';
             }            
         }
-        if(jpos < 8){
+        if(jpos < 7){
             if(board[ipos + 1][jpos + 1] !== '' && board[ipos + 1][jpos + 1].substring(0,1) != piece.substring(0,1)){  // diagonal capture of player piece
                 posmoves[posmoves.length] = squares[ipos][jpos] + '-' + squares[ipos + 1][jpos + 1] + 'X';
             }            
@@ -659,7 +682,8 @@ function AnalyzePieceMove(piece,ipos,jpos) {
     return posmoves;
 }
 
-function PickRandomMove(whichplayersmove,tempboard) {
+// Updated 12/24/2019
+function PickRandomMove(gameobj) {
     
     var randmove;
     var randidx;
@@ -668,7 +692,7 @@ function PickRandomMove(whichplayersmove,tempboard) {
     AddProcessItem("Begin PickRandomMove()");
     
     // load [validmoves] array based on board[][]
-    validmoves = GetValidMoves(whichplayersmove,tempboard);
+    validmoves = GetValidMoves(gameobj);
     
     // Pick random selection from validmoves[] array
     randidx = Math.floor((Math.random() * validmoves.length) -1);
@@ -683,7 +707,7 @@ function PickRandomMove(whichplayersmove,tempboard) {
     return randmove;
 }
 
-function PickBestPointsMove1Step(whichplayersmove,tempboard) {
+function PickBestPointsMove1Step(gameobj) {
     var bestmove = [];
     var sequence;
     var idx;
@@ -724,7 +748,8 @@ function PickBestPointsMove1Step(whichplayersmove,tempboard) {
     return bestmove;
 }
 
-function PickBestPointsMove2Step(whichplayersmove,tempboard) {
+function PickBestPointsMove2Step(gameobj) {
+    
     var bestmove = [];
     var validmoves, validcountermoves;
     var maxpoints;
@@ -751,7 +776,55 @@ function PickBestPointsMove2Step(whichplayersmove,tempboard) {
     }
     
     AddProcessItem('End PickBestPointsMove2Step()');
+    
     return bestmove;
+    
+}
+
+// Updated 12/23/2019
+function GetValidMoves(gameobj) {
+    
+    var txt1, txt2;
+    var posmoves = [];
+    var validmoves = [];
+    // Loads validmoves array with possible moves (either computer or player)
+     
+    AddProcessItem("Begin GetValidMoves()");
+    
+    // gameobj[2][14] is which player's move is being analyzed (black or white)
+    // gameobj[3] is board
+    
+    // Read board
+    for(var i=0;i<8;i++){
+        for(var j=0;j<8;j++){
+            txt1 = gameobj[3][i][j]; // piece on square
+            if((gameobj[2][14] === 'White' && txt1.substring(0,1)==='W') || (gameobj[2][14] === 'Black' && txt1.substring(0,1)==='B')){
+                posmoves = GetPossiblePieceMoves(txt1,i,j,gameobj);  // By piece type, determine valid move(s)
+                for(var k=0;k<posmoves.length;k++){
+                    validmoves[validmoves.length] = posmoves[k];  // Add move to validmoves[]
+                }                   
+            }
+        }
+    }
+    txt1 = '';
+    for(var i=0;i<validmoves.length;i++){
+        if(i == validmoves.length-1)
+        {
+            txt1 = txt1 + validmoves[i];
+        }
+        else
+        {
+            txt1 = txt1 + validmoves[i] + ',';
+        }       
+    }
+    //validcompmoves = txt1;
+    AddProcessItem("Valid moves for " + gameobj[2][14] + " (" + validmoves.length + "): " + txt1);
+
+    // Display valid moves in Analysis window
+    
+    AddProcessItem("End GetValidMoves()");
+    
+    return validmoves;
 }
 
 function CalculateCapturePoints(move) {
